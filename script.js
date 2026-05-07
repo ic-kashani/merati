@@ -22,7 +22,7 @@
   }
 
   var revealEls = document.querySelectorAll(
-    ".section-head, .service-card, .gallery-item, .about-text, .about-image, .contact-info, .contact-form"
+    ".section-head, .service-card, .gallery-item, .about-text, .about-portrait, .contact-info, .contact-form"
   );
   revealEls.forEach(function (el) { el.classList.add("reveal"); });
 
@@ -49,44 +49,17 @@
   window.addEventListener("scroll", onScroll, { passive: true });
   onScroll();
 
-  // Contact form: build a mailto link so it works without backend.
-  // Replace the action URL and remove this handler when integrating
-  // a real form service (Formspree, Web3Forms, etc.).
-  var form = document.querySelector(".contact-form");
-  if (form) {
-    form.addEventListener("submit", function (e) {
-      e.preventDefault();
-      function val(name) {
-        var el = form.querySelector('[name="' + name + '"]');
-        return el ? String(el.value || "").trim() : "";
-      }
-      var name = val("name");
-      var email = val("email");
-      var phone = val("phone");
-      var project = val("project");
-      var message = val("message");
-
-      if (!name || !email || !message) {
-        alert("Gelieve uw naam, e-mail en bericht in te vullen.");
-        return;
-      }
-
-      var subject = "Offerteaanvraag - " + (project || "Tegelwerken");
-      var bodyLines = [
-        "Naam: " + name,
-        "E-mail: " + email,
-        "Telefoon: " + (phone || "-"),
-        "Soort project: " + (project || "-"),
-        "",
-        "Bericht:",
-        message
-      ];
-      var to = form.getAttribute("data-to") || "contact@meratitegelwerken.be";
-      var href =
-        "mailto:" + to +
-        "?subject=" + encodeURIComponent(subject) +
-        "&body=" + encodeURIComponent(bodyLines.join("\n"));
-      window.location.href = href;
-    });
+  // Toon dankbericht na succesvol verzenden via FormSubmit (?sent=1).
+  if (window.location.search.indexOf("sent=1") !== -1) {
+    var form = document.querySelector(".contact-form");
+    if (form) {
+      var thanks = document.createElement("div");
+      thanks.className = "form-thanks";
+      thanks.innerHTML = "<strong>Bedankt voor uw aanvraag.</strong><br />Behrouz neemt binnen 24u contact met u op.";
+      form.parentNode.insertBefore(thanks, form);
+      form.style.display = "none";
+      thanks.scrollIntoView({ behavior: "smooth", block: "center" });
+      try { history.replaceState({}, "", window.location.pathname); } catch (e) {}
+    }
   }
 })();
